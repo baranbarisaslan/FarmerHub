@@ -11,19 +11,27 @@ public class UIManager : MonoBehaviour
 
     public void ActivateTileChanger(GameObject button)
     {
-        if (button.name.Contains("Wheat"))
+        if(tileChanger.isPlacing)
         {
-            tileChanger.finalTile = Tile_Wheat;
+            tileChanger.EndPlacing();
         }
-        else if (button.name.Contains("Corn"))
+        else
         {
-            tileChanger.finalTile = Tile_Corn;
+            if (button.name.Contains("Wheat"))
+            {
+                tileChanger.finalTile = Tile_Wheat;
+            }
+            else if (button.name.Contains("Corn"))
+            {
+                tileChanger.finalTile = Tile_Corn;
+            }
+            else if (button.name.Contains("Carrot"))
+            {
+                tileChanger.finalTile = Tile_Carrot;
+            }
+            tileChanger.StartPlacing();
         }
-        else if (button.name.Contains("Carrot"))
-        {
-            tileChanger.finalTile = Tile_Carrot;
-        }
-        tileChanger.StartPlacing();
+       
     }
 
 }

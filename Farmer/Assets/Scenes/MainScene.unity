@@ -286,11 +286,11 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1539548127}
         m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
-        m_MethodName: ToggleHighlight
-        m_Mode: 6
+        m_MethodName: ActivateTileChanger
+        m_Mode: 2
         m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_ObjectArgument: {fileID: 253225166}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -11814,7 +11814,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1729682559}
-  - component: {fileID: 1729682558}
   m_Layer: 0
   m_Name: Control
   m_TagString: Untagged
@@ -11822,18 +11821,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1729682558
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1729682557}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 69eb5aae19575ce449ae12822c8dc0cc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!4 &1729682559
 Transform:
   m_ObjectHideFlags: 0
