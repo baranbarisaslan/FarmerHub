@@ -8,6 +8,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] public TileBase Tile_Corn;
     [SerializeField] public TileBase Tile_Wheat;
     [SerializeField] public TileBase Tile_Carrot;
+    [SerializeField] public TileBase Tile_House;
+    [SerializeField] public TileBase Tile_Tower;
+
 
     public void ActivateTileChanger(GameObject button)
     {
@@ -28,6 +31,14 @@ public class UIManager : MonoBehaviour
             else if (button.name.Contains("Carrot"))
             {
                 tileChanger.finalTile = Tile_Carrot;
+            }
+            else if (button.name.Contains("House"))
+            {
+                tileChanger.finalTile = Tile_House;
+            }
+            else if (button.name.Contains("Tower"))
+            {
+                tileChanger.finalTile = Tile_Tower;
             }
             tileChanger.StartPlacing();
         }

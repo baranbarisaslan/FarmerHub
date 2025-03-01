@@ -4,20 +4,19 @@ using UnityEngine.Tilemaps;
 
 public class TileChanger : MonoBehaviour
 {
-    public Tilemap tilemap;                   // Tilemap_Farm, Inspector'da atayýn
-    public TileBase targetTile;               // Deðiþtirilmesi gereken tile (örn. Sprite_Tiles_Elevation_6)
+    public Tilemap tilemap;
+    public TileBase targetTile;
+    public TileBase allowedPreviewTile;
+    public TileBase disallowedPreviewTile;
+    public TileBase finalTile;
+    public TileBase houseTile;
+    public TileBase towerTile;
 
-    [Header("Önizleme Tile'larý")]
-    public TileBase allowedPreviewTile;       // Ýzin verilen alan için (ör. yeþil)
-    public TileBase disallowedPreviewTile;    // Ýzin verilmeyen alan için (ör. kýrmýzý)
+    public GameObject housePrefab;
+    public GameObject towerPrefab;
 
-    [Header("Kalýcý Tile")]
-    public TileBase finalTile;                // Týklama sonrasý kalýcý tile
+    public bool isPlacing = false;
 
-    [Header("Yerleþtirme Modu")]
-    public bool isPlacing = false;            // Yerleþtirme modu aktif mi?
-
-    // Hücrelerin orijinal tile'larýný saklar
     private Dictionary<Vector3Int, TileBase> originalTiles = new Dictionary<Vector3Int, TileBase>();
 
     public void StartPlacing()
@@ -25,7 +24,6 @@ public class TileChanger : MonoBehaviour
         isPlacing = true;
         originalTiles.Clear();
 
-        // Tilemap'in tüm hücrelerini tarýyoruz
         BoundsInt bounds = tilemap.cellBounds;
         for (int x = bounds.xMin; x < bounds.xMax; x++)
         {
@@ -36,10 +34,8 @@ public class TileChanger : MonoBehaviour
                 if (t != null)
                 {
                     originalTiles[cellPos] = t;
-                    // Sadece targetTile için allowed, diðerleri için disallowed önizleme uygula
                     if (t == targetTile)
                         tilemap.SetTile(cellPos, allowedPreviewTile);
-
                     tilemap.RefreshTile(cellPos);
                 }
             }
@@ -51,22 +47,70 @@ public class TileChanger : MonoBehaviour
         if (!isPlacing)
             return;
 
-        // Kullanýcý týkladýðýnda yalnýzca týklanan hücre kontrol edilsin
         if (Input.GetMouseButtonDown(0))
         {
             Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             mouseWorldPos.z = 0;
             Vector3Int clickedCell = tilemap.WorldToCell(mouseWorldPos);
 
-            if (originalTiles.ContainsKey(clickedCell))
+            if (!originalTiles.ContainsKey(clickedCell))
+                return;
+
+            if (finalTile == houseTile || finalTile == towerTile)
             {
-                // Sadece orijinal tile targetTile ise kalýcý tile yerleþtirilsin
+                List<Vector3Int> houseCells = new List<Vector3Int>
+                {
+                    clickedCell,
+                    clickedCell + new Vector3Int(1, 0, 0),
+                    clickedCell + new Vector3Int(0, 1, 0),
+                    clickedCell + new Vector3Int(1, 1, 0)
+                };
+
+                bool canPlace = true;
+                foreach (Vector3Int cell in houseCells)
+                {
+                    if (!originalTiles.ContainsKey(cell) || originalTiles[cell] != targetTile)
+                    {
+                        canPlace = false;
+                        break;
+                    }
+                }
+
+                if (canPlace)
+                {
+                    if (finalTile == towerTile)
+                    {
+                        foreach (Vector3Int cell in houseCells)
+                        {
+                            tilemap.SetTile(cell, towerTile);
+                            tilemap.RefreshTile(cell);
+                            originalTiles.Remove(cell);
+                        }
+                        Vector3 houseWorldPos = tilemap.CellToWorld(clickedCell);
+                        GameObject newTower = Instantiate(towerPrefab, houseWorldPos, Quaternion.identity);
+                        newTower.transform.position += new Vector3(1f, 1.75f, 0);
+                    }
+                    else
+                    {
+                        foreach (Vector3Int cell in houseCells)
+                        {
+                            tilemap.SetTile(cell, houseTile);
+                            tilemap.RefreshTile(cell);
+                            originalTiles.Remove(cell);
+                        }
+                        Vector3 houseWorldPos = tilemap.CellToWorld(clickedCell);
+                        GameObject newHouse = Instantiate(housePrefab, houseWorldPos, Quaternion.identity);
+                        newHouse.transform.position += new Vector3(1f, 1.75f, 0);
+                    }
+                }
+                EndPlacing();
+            }
+            else
+            {
                 if (originalTiles[clickedCell] == targetTile)
                 {
                     tilemap.SetTile(clickedCell, finalTile);
                     tilemap.RefreshTile(clickedCell);
-                    Debug.Log("Tile yerleþtirildi: " + clickedCell);
-                    // Bu hücre artýk restorasyona dahil edilmeyecek
                     originalTiles.Remove(clickedCell);
                 }
                 else
@@ -74,12 +118,9 @@ public class TileChanger : MonoBehaviour
                     Debug.Log("Bu hücreye yerleþtirme yapýlamaz: " + clickedCell);
                 }
             }
-            // Týklama sonrasý diðer hücrelere dokunulmadan preview'lar korunur,
-            // böylece timer sýfýrlanmaz.
         }
     }
 
-    // Ýsteðe baðlý: Yerleþtirme modunu sonlandýrýp, kalan preview'larý eski haline döndürmek için
     public void EndPlacing()
     {
         foreach (var kvp in originalTiles)
